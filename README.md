@@ -6,6 +6,6 @@ https://docs.aws.amazon.com/awscloudtrail/latest/userguide/send-cloudtrail-event
 https://docs.aws.amazon.com/awscloudtrail/latest/userguide/monitor-cloudtrail-log-files-with-cloudwatch-logs.html
 
 
-https://github.com/hashicorp/terraform/issues/6388
+<https://github.com/hashicorp/terraform/issues/6388>
 https://docs.aws.amazon.com/awscloudtrail/latest/userguide/create-s3-bucket-policy-for-cloudtrail.html
 https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-required-policy-for-cloudwatch-logs.html
