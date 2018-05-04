@@ -1,6 +1,13 @@
-# Compiled files
-*.tfstate
-*.tfstate.backup
+# public/private keys
+*.pem
+*.pub
 
-# Module directory
-.terraform/
+# terraform init
+**/.terraform/*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+# .tfvars files
+*.tfvars
