@@ -1,6 +1,5 @@
 # terraform-cloudwatch-subscriptions
 
-##References:##
 https://www.terraform.io/docs/providers/aws/r/cloudwatch_log_group.html
 https://docs.aws.amazon.com/awscloudtrail/latest/userguide/cloudtrail-create-and-update-a-trail.html
 https://docs.aws.amazon.com/awscloudtrail/latest/userguide/send-cloudtrail-events-to-cloudwatch-logs.html
