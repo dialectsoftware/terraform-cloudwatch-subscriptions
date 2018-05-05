@@ -154,7 +154,8 @@ resource "aws_lambda_function" "lambda_bridge" {
 
   environment {
     variables = {
-      env = "test"
+      EMAIL_FROM = ""
+      EMAIL_TO   = ""
     }
   }
 }
@@ -170,7 +171,7 @@ resource "aws_lambda_permission" "allow_cloudwatch" {
 
 resource "aws_cloudwatch_log_subscription_filter" "lambda_bridge_logfilter" {
   name            = "lambda_bridge_logfilter"
-  filter_pattern  = "DescribeAlarm"
+  filter_pattern  = "{  $.eventName = RunInstances ||  $.eventName = TerminateInstances }"
   log_group_name  = "${aws_cloudwatch_log_group.vpc-log-group.name}"
   destination_arn = "${aws_lambda_function.lambda_bridge.arn}"
 }
