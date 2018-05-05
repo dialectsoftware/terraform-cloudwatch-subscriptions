@@ -23,16 +23,17 @@ def handler(event, context):
     events = ast.literal_eval(data.decode('utf-8'))
     for event in events["logEvents"]:
         message = json.loads(event["message"])
-        response = message["responseElements"]
-        eventSource = message["eventSource"] 
-        eventName = message['eventName'] 
-        awsRegion = message["awsRegion"]
-        instance = response["instancesSet"]["items"][0]
-        imageId = instance["imageId"]
-        instanceId = instance["instanceId"]
-        instanceType = instance["instanceType"]
-        instanceState = instance["instanceState"]["name"]
+        response = message.get("responseElements",{})
+        eventSource = message.get("eventSource","N/A")
+        eventName = message.get('eventName',"N/A")
+        awsRegion = message.get("awsRegion","N/A")
+        instance = response.get("instancesSet",{}).get("items",[{}])[0]
+        imageId = instance.get("imageId","N/A")
+        instanceId = instance.get("instanceId","N/A")
+        instanceType = instance.get("instanceType","N/A")
+        instanceState = instance.get("instanceState",{}).get("name","N/A")
         latency = datetime.datetime.utcnow() - datetime.datetime.strptime(message["eventTime"],'%Y-%m-%dT%H:%M:%SZ')
+
 
         subject = f"AWS Notification  ({latency})"
         body = f"{eventSource} {eventName} in {awsRegion}\nImageId: {imageId}\nInstanceId: {instanceId}\nInstanceType: {instanceType}\nInstanceState: {instanceState}"
