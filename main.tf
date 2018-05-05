@@ -128,7 +128,49 @@ resource "aws_cloudtrail" "vpc-log-trail" {
 
 #********************* create lambda *********************
 
-resource "aws_iam_role" "iam_for_lambda_bridge" {
-  name               = "iam_for_lambda_bridge"
+resource "aws_iam_role" "iam-for-lambda-bridge-role" {
+  name               = "iam-for-lambda-bridge-role"
   assume_role_policy = "${file("vpc_lambda_assume_role_policy.json")}"
+}
+
+resource "aws_iam_policy" "iam-for-lambda-bridge-policy" {
+  name   = "iam-for-lambda-bridge-policy"
+  policy = "${file("vpc_lambda_bridge_policy.json")}"
+}
+
+resource "aws_iam_policy_attachment" "iam-for-lambda-bridge-attach-policy" {
+  name       = "Lambda_CloudWatchLogs_Role_Attach_Policy"
+  roles      = ["${aws_iam_role.iam-for-lambda-bridge-role.name}"]
+  policy_arn = "${aws_iam_policy.iam-for-lambda-bridge-policy.arn}"
+}
+
+resource "aws_lambda_function" "lambda_bridge" {
+  filename         = "bridge.zip"
+  function_name    = "lambda_bridge_function"
+  role             = "${aws_iam_role.iam-for-lambda-bridge-role.arn}"
+  handler          = "bridge.handler"
+  source_code_hash = "${base64sha256(file("bridge.zip"))}"
+  runtime          = "python3.6"
+
+  environment {
+    variables = {
+      env = "test"
+    }
+  }
+}
+
+resource "aws_lambda_permission" "allow_cloudwatch" {
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
+  function_name = "${aws_lambda_function.lambda_bridge.arn}"
+  principal     = "logs.${data.aws_region.current.name}.amazonaws.com"
+
+  #source_arn     = "${aws_s3_bucket.vpc-log-trail-bucket.arn}"
+}
+
+resource "aws_cloudwatch_log_subscription_filter" "lambda_bridge_logfilter" {
+  name            = "lambda_bridge_logfilter"
+  filter_pattern  = "DescribeAlarm"
+  log_group_name  = "${aws_cloudwatch_log_group.vpc-log-group.name}"
+  destination_arn = "${aws_lambda_function.lambda_bridge.arn}"
 }
