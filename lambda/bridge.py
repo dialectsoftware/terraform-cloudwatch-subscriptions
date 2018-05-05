@@ -4,6 +4,7 @@ import gzip
 import ast 
 import os
 import json
+import datetime
 
 ses = boto3.client('ses')
 
@@ -22,6 +23,18 @@ def handler(event, context):
     events = ast.literal_eval(data.decode('utf-8'))
     for event in events["logEvents"]:
         message = json.loads(event["message"])
-        txt = message["eventSource"] + " " + message['eventName'] + " in " + message["awsRegion"]
-        notify(os.environ['EMAIL_FROM'], os.environ['EMAIL_TO'], txt, "AWS notification")
+        response = message["responseElements"]
+        eventSource = message["eventSource"] 
+        eventName = message['eventName'] 
+        awsRegion = message["awsRegion"]
+        instance = response["instancesSet"]["items"][0]
+        imageId = instance["imageId"]
+        instanceId = instance["instanceId"]
+        instanceType = instance["instanceType"]
+        instanceState = instance["instanceState"]["name"]
+        latency = datetime.datetime.utcnow() - datetime.datetime.strptime(message["eventTime"],'%Y-%m-%dT%H:%M:%SZ')
+
+        subject = f"AWS Notification  ({latency})"
+        body = f"{eventSource} {eventName} in {awsRegion}\nImageId: {imageId}\nInstanceId: {instanceId}\nInstanceType: {instanceType}\nInstanceState: {instanceState}"
+        notify(os.environ['EMAIL_FROM'], os.environ['EMAIL_TO'], subject, body)
     return data.decode('utf-8')
